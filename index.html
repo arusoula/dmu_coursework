@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>DMU Computing College</title>
+<style>
+  :root {
+    --bg: #0d1117;
+    --card: #161b25;
+    --card-hover: #1e2433;
+    --border: #252d3d;
+    --accent: #4f8ef7;
+    --accent-soft: #152044;
+    --green: #22c55e;
+    --green-soft: #0d2e1a;
+    --amber: #f59e0b;
+    --red: #ef4444;
+    --text: #e2e8f0;
+    --muted: #7c859e;
+    --tag: #1e2433;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', system-ui, sans-serif; min-height: 100vh; }
+  a { text-decoration: none; }
+
+  /* NAV */
+  nav {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 0 32px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    position: sticky;
+    top: 0;
+    z-index: 200;
+    gap: 8px;
+  }
+  .nav-brand {
+    display: flex; align-items: center; gap: 10px;
+    cursor: pointer; margin-right: 24px; flex-shrink: 0;
+  }
+  .nav-logo {
+    width: 34px; height: 34px; background: var(--accent);
+    border-radius: 9px; display: flex; align-items: center;
+    justify-content: center; font-size: 18px;
+  }
+  .nav-title { font-weight: 800; font-size: 15px; letter-spacing: -0.3px; }
+  .nav-links { display: flex; gap: 2px; flex: 1; }
+  .nav-link {
+    background: none; border: none; color: var(--muted);
+    padding: 7px 14px; border-radius: 7px; cursor: pointer;
+    font-size: 14px; font-weight: 500; transition: all 0.15s;
+  }
+  .nav-link:hover { background: var(--tag); color: var(--text); }
+  .nav-link.admin { color: var(--amber); }
+  .nav-actions { display: flex; align-items: center; gap: 10px; }
+  .nav-avatar {
+    width: 32px; height: 32px; background: var(--accent-soft);
+    border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; color: var(--accent);
+    font-weight: 700; font-size: 14px;
+  }
+  .nav-username { font-size: 13px; color: var(--text); }
+
+  /* BUTTONS */
+  .btn {
+    border: none; border-radius: 8px; padding: 9px 20px;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    transition: all 0.15s; display: inline-flex;
+    align-items: center; gap: 6px;
+  }
+  .btn-primary { background: var(--accent); color: #fff; }
+  .btn-primary:hover { background: #3a7de8; }
+  .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+  .btn-outline:hover { background: var(--tag); }
+  .btn-sm { padding: 6px 14px; font-size: 13px; }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-success { background: var(--green-soft); color: var(--green); border: 1px solid #166534; }
+
+  /* CARDS */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 22px 24px;
+    transition: all 0.18s;
+  }
+  .card-clickable { cursor: pointer; }
+  .card-clickable:hover { background: var(--card-hover); border-color: rgba(79,142,247,0.35); }
+
+  /* BADGES */
+  .badge {
+    display: inline-block;
+    padding: 2px 10px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    background: var(--tag);
+    color: var(--accent);
+    border: 1px solid rgba(79,142,247,0.25);
+  }
+  .badge-green { color: var(--green); border-color: rgba(34,197,94,0.25); }
+  .badge-amber { color: var(--amber); border-color: rgba(245,158,11,0.25); }
+  .badge-muted { color: var(--muted); border-color: var(--border); }
+
+  /* INPUTS */
+  .field { margin-bottom: 16px; }
+  .field label {
+    display: block; margin-bottom: 6px;
+    font-size: 12px; color: var(--muted);
+    font-weight: 700; letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .field input {
+    width: 100%; background: var(--bg);
+    border: 1px solid var(--border); border-radius: 8px;
+    padding: 10px 14px; color: var(--text); font-size: 14px;
+    outline: none; transition: border-color 0.15s;
+    font-family: inherit;
+  }
+  .field input:focus { border-color: var(--accent); }
+  .field input.error { border-color: var(--red); }
+  .field .err-msg { color: var(--red); font-size: 12px; margin-top: 5px; display: block; }
+
+  /* LAYOUTS */
+  .page { max-width: 960px; margin: 0 auto; padding: 44px 24px; }
+  .page-narrow { max-width: 440px; margin: 0 auto; padding: 50px 24px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .grid-3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; }
+  .grid-4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+  .stack { display: flex; flex-direction: column; gap: 14px; }
+
+  /* SECTIONS */
+  .section-title {
+    font-size: 22px; font-weight: 700; color: var(--text);
+    margin-bottom: 16px; margin-top: 32px;
+  }
+  .page-title { font-size: 32px; font-weight: 900; color: var(--text); margin-bottom: 8px; }
+  .page-sub { color: var(--muted); margin-bottom: 28px; }
+
+  /* SEARCH */
+  .search-bar {
+    width: 100%; background: var(--card);
+    border: 1px solid var(--border); border-radius: 10px;
+    padding: 12px 18px; color: var(--text); font-size: 14px;
+    margin-bottom: 28px; outline: none;
+    transition: border-color 0.15s; font-family: inherit;
+  }
+  .search-bar:focus { border-color: var(--accent); }
+
+  /* TABLE */
+  .data-table { width: 100%; border-collapse: collapse; }
+  .data-table th {
+    padding: 11px 18px; text-align: left;
+    color: var(--muted); font-size: 12px;
+    font-weight: 700; letter-spacing: 0.5px;
+    text-transform: uppercase;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+  .data-table td {
+    padding: 12px 18px; font-size: 14px;
+    color: var(--text);
+  }
+  .data-table tr:not(:last-child) td { border-bottom: 1px solid var(--border); }
+  .table-wrap { border-radius: 14px; overflow: hidden; border: 1px solid var(--border); }
+
+  /* BACK BUTTON */
+  .back-btn {
+    background: none; border: none; color: var(--muted);
+    cursor: pointer; font-size: 14px; margin-bottom: 20px;
+    padding: 0; display: flex; align-items: center; gap: 6px;
+    transition: color 0.15s;
+  }
+  .back-btn:hover { color: var(--text); }
+
+  /* STAT */
+  .stat-val { font-size: 32px; font-weight: 900; }
+  .stat-label { color: var(--muted); font-size: 13px; margin-top: 4px; }
+
+  /* HERO */
+  .hero { text-align: center; margin-bottom: 52px; }
+  .hero-pill {
+    display: inline-block; background: var(--accent-soft);
+    color: var(--accent); padding: 6px 18px; border-radius: 20px;
+    font-size: 13px; font-weight: 600; margin-bottom: 20px;
+  }
+  .hero-title {
+    font-size: 46px; font-weight: 900; color: var(--text);
+    line-height: 1.1; letter-spacing: -1.5px; margin-bottom: 16px;
+  }
+  .hero-title span { color: var(--accent); }
+  .hero-sub {
+    color: var(--muted); font-size: 17px;
+    max-width: 520px; margin: 0 auto 28px; line-height: 1.7;
+  }
+  .hero-btns { display: flex; gap: 12px; justify-content: center; }
+
+  /* MODULE STAFF */
+  .staff-item { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+  .staff-avatar {
+    width: 38px; height: 38px; background: var(--accent-soft);
+    border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; color: var(--accent);
+    font-weight: 700; font-size: 14px; flex-shrink: 0;
+  }
+  .staff-name { font-size: 15px; font-weight: 500; }
+
+  /* SUCCESS */
+  .success-box { text-align: center; padding: 72px 24px; }
+  .success-icon { font-size: 56px; margin-bottom: 16px; }
+
+  /* TOAST */
+  #toast {
+    position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+    background: var(--green-soft); color: var(--green);
+    border: 1px solid #166534; padding: 12px 24px;
+    border-radius: 10px; font-weight: 600; font-size: 14px;
+    opacity: 0; transition: opacity 0.3s; pointer-events: none;
+    z-index: 999; white-space: nowrap;
+  }
+  #toast.show { opacity: 1; }
+
+  /* EMPTY STATE */
+  .empty { text-align: center; padding: 40px; color: var(--muted); }
+
+  @media (max-width: 640px) {
+    .grid-2, .grid-3, .grid-4 { grid-template-columns: 1fr; }
+    .hero-title { font-size: 32px; }
+    nav { padding: 0 16px; }
+    .nav-title { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="nav-brand" onclick="go('home')">
+    <div class="nav-logo">🎓</div>
+    <span class="nav-title">DMU Computing</span>
+  </div>
+  <div class="nav-links">
+    <button class="nav-link" onclick="go('home')">Home</button>
+    <button class="nav-link" onclick="go('courses')">Courses</button>
+    <button class="nav-link admin" id="nav-admin" style="display:none" onclick="go('admin')">Admin</button>
+  </div>
+  <div class="nav-actions" id="nav-actions">
+    <button class="btn btn-outline btn-sm" onclick="go('login')">Login</button>
+    <button class="btn btn-primary btn-sm" onclick="go('signup')">Sign Up</button>
+  </div>
+</nav>
+
+<div id="app"></div>
+<div id="toast"></div>
+
+<script>
+// ─── DATABASE ────────────────────────────────────────────────────────────────
+const DB = {
+  courses: [
+    { id:1, code:"CS101",   name:"BSc Computer Science",    level:"Level 4–6", duration:"3 years", description:"A comprehensive degree covering algorithms, software engineering, AI, and systems design. Prepares graduates for a wide range of computing careers." },
+    { id:2, code:"SE201",   name:"BSc Software Engineering",level:"Level 4–6", duration:"3 years", description:"Focuses on engineering principles for building robust, scalable software systems. Includes architecture, DevOps, and quality assurance." },
+    { id:3, code:"HND301",  name:"HND Computing",           level:"Level 4–5", duration:"2 years", description:"A practical higher national diploma covering core computing skills, networking, databases, and application development." },
+    { id:4, code:"CYB401",  name:"BSc Cybersecurity",       level:"Level 4–6", duration:"3 years", description:"Covers network security, ethical hacking, cryptography, and digital forensics. Aligned with industry certifications." },
+  ],
+  modules: [
+    { id:1,  courseId:1, code:"IMAT1001", title:"Introduction to Programming",   description:"Fundamentals of programming using Python. Covers variables, loops, functions, classes and object-oriented design patterns.", staff:["Dr. Sarah Ahmed","Prof. James Okafor"], semester:"Semester 1" },
+    { id:2,  courseId:1, code:"IMAT1002", title:"Data Structures & Algorithms",  description:"Arrays, linked lists, trees, graphs, sorting and searching algorithms. Big-O complexity analysis and practical implementation.", staff:["Prof. James Okafor"], semester:"Semester 2" },
+    { id:3,  courseId:1, code:"IMAT2718", title:"Integrated Project",            description:"Agile-based group project developing a real-world system. Covers requirements, sprints, testing, and professional documentation.", staff:["Sunil M.","Ammar B."], semester:"Semester 2" },
+    { id:4,  courseId:1, code:"IMAT2001", title:"Web Technologies",              description:"HTML, CSS, JavaScript, React and backend development with Node.js and relational databases. Includes REST API design.", staff:["Dr. Sarah Ahmed"], semester:"Semester 1" },
+    { id:5,  courseId:2, code:"SE1001",   title:"Software Requirements",         description:"Gathering, analysing and documenting software requirements using UML, use cases and agile user stories.", staff:["Prof. Liu Wei"], semester:"Semester 1" },
+    { id:6,  courseId:2, code:"SE1002",   title:"Software Testing",              description:"Unit testing, integration testing, TDD and test automation with JUnit and Selenium. Defect tracking and reporting.", staff:["Prof. Liu Wei","Dr. Elena Russo"], semester:"Semester 2" },
+    { id:7,  courseId:3, code:"HND101",   title:"Computing Fundamentals",        description:"Hardware components, operating systems, networking basics and introductory programming. Suitable for computing beginners.", staff:["Ms. Priya Nair"], semester:"Semester 1" },
+    { id:8,  courseId:3, code:"HND102",   title:"Database Systems",              description:"Relational database design, SQL, normalisation (1NF–3NF) and database administration principles.", staff:["Ms. Priya Nair","Dr. Tom Bridges"], semester:"Semester 2" },
+    { id:9,  courseId:4, code:"CYB101",   title:"Network Security",              description:"Firewalls, IDS/IPS systems, VPN configuration and secure network architecture using industry standards.", staff:["Dr. Yusuf Al-Rashid"], semester:"Semester 1" },
+    { id:10, courseId:4, code:"CYB102",   title:"Ethical Hacking",               description:"Penetration testing methodologies, vulnerability scanning with Metasploit and Nmap, and responsible disclosure practices.", staff:["Dr. Yusuf Al-Rashid","Prof. Kim Park"], semester:"Semester 2" },
+  ],
+  users: [
+    { id:1, name:"Admin User", email:"admin@college.ac.uk", password:"admin123", role:"admin" }
+  ],
+  enrollments: [],
+  _nextUserId: 2,
+  _nextEnrollId: 1,
+};
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let currentUser = null;
+let currentPage = "home";
+let currentParam = null;
+
+// ─── ROUTER ──────────────────────────────────────────────────────────────────
+function go(page, param) {
+  currentPage = page;
+  currentParam = param !== undefined ? param : null;
+  render();
+  window.scrollTo(0, 0);
+}
+
+// ─── TOAST ───────────────────────────────────────────────────────────────────
+function toast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 3000);
+}
+
+// ─── NAV UPDATER ─────────────────────────────────────────────────────────────
+function updateNav() {
+  const actions = document.getElementById("nav-actions");
+  const adminBtn = document.getElementById("nav-admin");
+  if (currentUser) {
+    adminBtn.style.display = currentUser.role === "admin" ? "" : "none";
+    actions.innerHTML = `
+      <button class="btn btn-outline btn-sm" onclick="go('dashboard')">Dashboard</button>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="nav-avatar">${currentUser.name[0].toUpperCase()}</div>
+        <span class="nav-username">${currentUser.name.split(" ")[0]}</span>
+      </div>
+      <button class="btn btn-outline btn-sm" onclick="logout()">Logout</button>
+    `;
+  } else {
+    adminBtn.style.display = "none";
+    actions.innerHTML = `
+      <button class="btn btn-outline btn-sm" onclick="go('login')">Login</button>
+      <button class="btn btn-primary btn-sm" onclick="go('signup')">Sign Up</button>
+    `;
+  }
+}
+
+function logout() {
+  currentUser = null;
+  toast("Logged out successfully");
+  go("home");
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function render() {
+  updateNav();
+  const app = document.getElementById("app");
+  switch(currentPage) {
+    case "home":       app.innerHTML = renderHome(); break;
+    case "courses":    app.innerHTML = renderCourses(); break;
+    case "course":     app.innerHTML = renderCourse(currentParam); break;
+    case "module":     app.innerHTML = renderModule(currentParam); break;
+    case "login":      app.innerHTML = renderLogin(); break;
+    case "signup":     app.innerHTML = renderSignup(); break;
+    case "dashboard":  app.innerHTML = currentUser ? renderDashboard() : renderLogin(); break;
+    case "admin":      app.innerHTML = (currentUser && currentUser.role === "admin") ? renderAdmin() : renderHome(); break;
+    default:           app.innerHTML = renderHome();
+  }
+  attachEvents();
+}
+
+// ─── PAGE: HOME ───────────────────────────────────────────────────────────────
+function renderHome() {
+  const featured = DB.courses.map(c => `
+    <div class="card card-clickable" onclick="go('course',${c.id})">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px">
+        <span class="badge">${c.code}</span>
+        <span class="badge badge-green">${c.duration}</span>
+      </div>
+      <h3 style="font-size:16px;font-weight:700;color:var(--text);margin:6px 0">${c.name}</h3>
+      <p style="color:var(--muted);font-size:13px;line-height:1.5">${c.description.slice(0,90)}…</p>
+    </div>
+  `).join("");
+
+  return `
+    <div class="page">
+      <div class="hero">
+        <div class="hero-pill">De Montfort University — Computing College</div>
+        <h1 class="hero-title">Find Your<br><span>Computing Course</span></h1>
+        <p class="hero-sub">Explore our computing degrees and qualifications. Browse modules, meet your lecturers, and register for the course that fits your future.</p>
+        <div class="hero-btns">
+          <button class="btn btn-primary" onclick="go('courses')">Browse Courses →</button>
+          <button class="btn btn-outline" onclick="go('signup')">Create Account</button>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-bottom:48px">
+        <div class="card" style="text-align:center">
+          <div style="font-size:28px;margin-bottom:10px">📚</div>
+          <div style="font-weight:700;margin-bottom:5px">4 Programmes</div>
+          <div style="color:var(--muted);font-size:13px">From HND to BSc level qualifications</div>
+        </div>
+        <div class="card" style="text-align:center">
+          <div style="font-size:28px;margin-bottom:10px">🧑‍🏫</div>
+          <div style="font-weight:700;margin-bottom:5px">Expert Staff</div>
+          <div style="color:var(--muted);font-size:13px">Industry-experienced academic team</div>
+        </div>
+        <div class="card" style="text-align:center">
+          <div style="font-size:28px;margin-bottom:10px">💻</div>
+          <div style="font-weight:700;margin-bottom:5px">Hands-On Learning</div>
+          <div style="color:var(--muted);font-size:13px">Project-based, agile methodology</div>
+        </div>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:18px">
+        <h2 class="section-title" style="margin:0">Featured Courses</h2>
+        <button class="btn btn-outline btn-sm" onclick="go('courses')">View all →</button>
+      </div>
+      <div class="grid-2">${featured}</div>
+    </div>
+  `;
+}
+
+// ─── PAGE: COURSES ────────────────────────────────────────────────────────────
+function renderCourses() {
+  const cards = DB.courses.map(c => {
+    const mods = DB.modules.filter(m => m.courseId === c.id);
+    return `
+      <div class="card card-clickable" onclick="go('course',${c.id})">
+        <div style="display:flex;align-items:flex-start;gap:18px">
+          <div style="width:52px;height:52px;background:var(--accent-soft);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🎓</div>
+          <div style="flex:1">
+            <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:8px">
+              <span class="badge">${c.code}</span>
+              <span class="badge badge-muted">${c.level}</span>
+              <span class="badge badge-green">${c.duration}</span>
+            </div>
+            <h3 style="font-size:17px;font-weight:700;margin-bottom:6px">${c.name}</h3>
+            <p style="color:var(--muted);font-size:13px;line-height:1.55;margin-bottom:10px">${c.description}</p>
+            <span style="color:var(--accent);font-size:13px;font-weight:600">${mods.length} modules →</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  return `
+    <div class="page">
+      <h1 class="page-title">All Courses</h1>
+      <p class="page-sub">Browse all available computing programmes</p>
+      <input class="search-bar" id="search-input" placeholder="🔍  Search by course name or code…" oninput="filterCourses(this.value)"/>
+      <div class="stack" id="courses-list">${cards}</div>
+    </div>
+  `;
+}
+
+function filterCourses(q) {
+  const list = document.getElementById("courses-list");
+  const filtered = DB.courses.filter(c =>
+    c.name.toLowerCase().includes(q.toLowerCase()) || c.code.toLowerCase().includes(q.toLowerCase())
+  );
+  if (!filtered.length) {
+    list.innerHTML = `<div class="empty card">No courses match your search.</div>`;
+    return;
+  }
+  list.innerHTML = filtered.map(c => {
+    const mods = DB.modules.filter(m => m.courseId === c.id);
+    return `
+      <div class="card card-clickable" onclick="go('course',${c.id})">
+        <div style="display:flex;align-items:flex-start;gap:18px">
+          <div style="width:52px;height:52px;background:var(--accent-soft);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0">🎓</div>
+          <div style="flex:1">
+            <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:8px">
+              <span class="badge">${c.code}</span>
+              <span class="badge badge-muted">${c.level}</span>
+              <span class="badge badge-green">${c.duration}</span>
+            </div>
+            <h3 style="font-size:17px;font-weight:700;margin-bottom:6px">${c.name}</h3>
+            <p style="color:var(--muted);font-size:13px;line-height:1.55;margin-bottom:10px">${c.description}</p>
+            <span style="color:var(--accent);font-size:13px;font-weight:600">${mods.length} modules →</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+// ─── PAGE: COURSE DETAIL ──────────────────────────────────────────────────────
+function renderCourse(id) {
+  const c = DB.courses.find(x => x.id === id);
+  if (!c) return `<div class="page"><p style="color:var(--muted)">Course not found.</p></div>`;
+
+  const modules = DB.modules.filter(m => m.courseId === id);
+  const isEnrolled = currentUser && DB.enrollments.some(e => e.userId === currentUser.id && e.courseId === id);
+
+  const enrollBtn = isEnrolled
+    ? `<div class="btn btn-success" style="cursor:default">✓ Enrolled</div>`
+    : `<button class="btn btn-primary" id="enroll-btn" onclick="enrollCourse(${id})">${currentUser ? "Register for this Course" : "Sign In to Register"}</button>`;
+
+  const modCards = modules.map(m => `
+    <div class="card card-clickable" onclick="go('module',${m.id})">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div style="flex:1">
+          <div style="display:flex;gap:7px;margin-bottom:8px;flex-wrap:wrap">
+            <span class="badge">${m.code}</span>
+            <span class="badge badge-amber">${m.semester}</span>
+          </div>
+          <h3 style="font-size:16px;font-weight:700;margin-bottom:5px">${m.title}</h3>
+          <p style="color:var(--muted);font-size:13px">${m.description.slice(0,100)}…</p>
+        </div>
+        <span style="color:var(--accent);font-size:22px;margin-left:14px">›</span>
+      </div>
+    </div>
+  `).join("");
+
+  return `
+    <div class="page">
+      <button class="back-btn" onclick="go('courses')">← Back to courses</button>
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:24px;flex-wrap:wrap;margin-bottom:32px">
+        <div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+            <span class="badge">${c.code}</span>
+            <span class="badge badge-muted">${c.level}</span>
+            <span class="badge badge-green">${c.duration}</span>
+          </div>
+          <h1 style="font-size:32px;font-weight:900;margin-bottom:10px;letter-spacing:-0.5px">${c.name}</h1>
+          <p style="color:var(--muted);font-size:15px;max-width:580px;line-height:1.7">${c.description}</p>
+        </div>
+        <div style="flex-shrink:0;padding-top:8px">
+          ${enrollBtn}
+          <div id="enroll-msg" style="color:var(--green);font-size:13px;margin-top:8px;text-align:right"></div>
+        </div>
+      </div>
+      <h2 class="section-title" style="margin-top:0">Modules (${modules.length})</h2>
+      <div class="stack">${modCards}</div>
+    </div>
+  `;
+}
+
+function enrollCourse(courseId) {
+  if (!currentUser) { go('login'); return; }
+  if (DB.enrollments.some(e => e.userId === currentUser.id && e.courseId === courseId)) return;
+  DB.enrollments.push({ id: DB._nextEnrollId++, userId: currentUser.id, courseId, enrolledAt: new Date().toISOString() });
+  document.getElementById("enroll-btn").outerHTML = `<div class="btn btn-success" style="cursor:default">✓ Enrolled</div>`;
+  document.getElementById("enroll-msg").textContent = "Successfully registered!";
+  toast("✅ Registered for course!");
+}
+
+// ─── PAGE: MODULE DETAIL ──────────────────────────────────────────────────────
+function renderModule(id) {
+  const m = DB.modules.find(x => x.id === id);
+  if (!m) return `<div class="page"><p style="color:var(--muted)">Module not found.</p></div>`;
+  const course = DB.courses.find(c => c.id === m.courseId);
+
+  const staffHtml = m.staff.map(s => `
+    <div class="staff-item">
+      <div class="staff-avatar">${s[0]}</div>
+      <span class="staff-name">${s}</span>
+    </div>
+  `).join("");
+
+  return `
+    <div style="max-width:720px;margin:0 auto;padding:44px 24px">
+      <button class="back-btn" onclick="go('course',${m.courseId})">← Back to ${course ? course.name : "course"}</button>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+        <span class="badge">${m.code}</span>
+        <span class="badge badge-amber">${m.semester}</span>
+      </div>
+      <h1 style="font-size:28px;font-weight:900;margin-bottom:10px">${m.title}</h1>
+      <p style="color:var(--muted);font-size:15px;line-height:1.7;margin-bottom:28px">${m.description}</p>
+
+      <div class="grid-2" style="margin-bottom:20px">
+        <div class="card">
+          <div style="color:var(--muted);font-size:11px;font-weight:700;letter-spacing:0.6px;text-transform:uppercase;margin-bottom:8px">Module Code</div>
+          <div style="color:var(--accent);font-weight:700;font-size:20px">${m.code}</div>
+        </div>
+        <div class="card">
+          <div style="color:var(--muted);font-size:11px;font-weight:700;letter-spacing:0.6px;text-transform:uppercase;margin-bottom:8px">Semester</div>
+          <div style="font-weight:700;font-size:20px">${m.semester}</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="color:var(--muted);font-size:11px;font-weight:700;letter-spacing:0.6px;text-transform:uppercase;margin-bottom:14px">Associated Staff</div>
+        ${staffHtml}
+      </div>
+    </div>
+  `;
+}
+
+// ─── PAGE: LOGIN ──────────────────────────────────────────────────────────────
+function renderLogin() {
+  return `
+    <div class="page-narrow">
+      <div style="text-align:center;margin-bottom:28px">
+        <div style="font-size:40px;margin-bottom:10px">🔐</div>
+        <h1 style="font-size:26px;font-weight:800">Welcome back</h1>
+        <p style="color:var(--muted);margin-top:8px">Sign in to your account</p>
+      </div>
+      <div class="card">
+        <div class="field">
+          <label>Email Address</label>
+          <input type="email" id="login-email" placeholder="you@college.ac.uk"/>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="login-pass" placeholder="••••••••" id="login-pass"/>
+          <span class="err-msg" id="login-err" style="display:none"></span>
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="doLogin()">Sign In</button>
+        <div style="margin-top:16px;text-align:center;color:var(--muted);font-size:13px">
+          Try: <code style="background:var(--tag);padding:2px 6px;border-radius:4px;color:var(--accent)">admin@college.ac.uk</code> /
+          <code style="background:var(--tag);padding:2px 6px;border-radius:4px;color:var(--accent)">admin123</code>
+        </div>
+      </div>
+      <div style="text-align:center;margin-top:20px;color:var(--muted);font-size:14px">
+        No account? <span style="color:var(--accent);cursor:pointer;font-weight:600" onclick="go('signup')">Sign up</span>
+      </div>
+    </div>
+  `;
+}
+
+function doLogin() {
+  const email = document.getElementById("login-email").value.trim();
+  const pass  = document.getElementById("login-pass").value;
+  const errEl = document.getElementById("login-err");
+  const found = DB.users.find(u => u.email === email && u.password === pass);
+  if (!found) {
+    errEl.textContent = "Invalid email or password.";
+    errEl.style.display = "block";
+    document.getElementById("login-pass").classList.add("error");
+    return;
+  }
+  currentUser = found;
+  toast(`Welcome back, ${found.name.split(" ")[0]}!`);
+  go("dashboard");
+}
+
+// ─── PAGE: SIGNUP ─────────────────────────────────────────────────────────────
+function renderSignup() {
+  return `
+    <div class="page-narrow">
+      <div style="text-align:center;margin-bottom:28px">
+        <div style="font-size:40px;margin-bottom:10px">🎓</div>
+        <h1 style="font-size:26px;font-weight:800">Create your account</h1>
+        <p style="color:var(--muted);margin-top:8px">Register as a new applicant</p>
+      </div>
+      <div class="card">
+        <div class="field">
+          <label>Full Name</label>
+          <input type="text" id="su-name" placeholder="Jane Smith"/>
+          <span class="err-msg" id="err-name" style="display:none"></span>
+        </div>
+        <div class="field">
+          <label>Email Address</label>
+          <input type="email" id="su-email" placeholder="jane@example.com"/>
+          <span class="err-msg" id="err-email" style="display:none"></span>
+        </div>
+        <div class="field">
+          <label>Password</label>
+          <input type="password" id="su-pass" placeholder="Min. 6 characters"/>
+          <span class="err-msg" id="err-pass" style="display:none"></span>
+        </div>
+        <div class="field">
+          <label>Confirm Password</label>
+          <input type="password" id="su-conf" placeholder="Repeat password"/>
+          <span class="err-msg" id="err-conf" style="display:none"></span>
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center" onclick="doSignup()">Create Account</button>
+      </div>
+      <div style="text-align:center;margin-top:20px;color:var(--muted);font-size:14px">
+        Already have an account? <span style="color:var(--accent);cursor:pointer;font-weight:600" onclick="go('login')">Sign in</span>
+      </div>
+    </div>
+  `;
+}
+
+function showErr(id, msg) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = msg;
+  el.style.display = msg ? "block" : "none";
+}
+
+function doSignup() {
+  const name  = document.getElementById("su-name").value.trim();
+  const email = document.getElementById("su-email").value.trim();
+  const pass  = document.getElementById("su-pass").value;
+  const conf  = document.getElementById("su-conf").value;
+  let ok = true;
+
+  showErr("err-name",""); showErr("err-email",""); showErr("err-pass",""); showErr("err-conf","");
+  document.querySelectorAll("#su-name,#su-email,#su-pass,#su-conf").forEach(i => i.classList.remove("error"));
+
+  if (!name) { showErr("err-name","Full name is required."); document.getElementById("su-name").classList.add("error"); ok=false; }
+  if (!email.includes("@")) { showErr("err-email","Enter a valid email."); document.getElementById("su-email").classList.add("error"); ok=false; }
+  else if (DB.users.find(u => u.email === email)) { showErr("err-email","Email already registered."); document.getElementById("su-email").classList.add("error"); ok=false; }
+  if (pass.length < 6) { showErr("err-pass","Password must be at least 6 characters."); document.getElementById("su-pass").classList.add("error"); ok=false; }
+  if (pass !== conf)   { showErr("err-conf","Passwords do not match."); document.getElementById("su-conf").classList.add("error"); ok=false; }
+  if (!ok) return;
+
+  const newUser = { id: DB._nextUserId++, name, email, password: pass, role:"applicant" };
+  DB.users.push(newUser);
+  currentUser = newUser;
+  document.getElementById("app").innerHTML = `
+    <div class="success-box">
+      <div class="success-icon">✅</div>
+      <h2 style="color:var(--green);font-size:26px;font-weight:800;margin-bottom:8px">Account created!</h2>
+      <p style="color:var(--muted)">Redirecting you to courses…</p>
+    </div>
+  `;
+  updateNav();
+  setTimeout(() => go("courses"), 1800);
+}
+
+// ─── PAGE: DASHBOARD ──────────────────────────────────────────────────────────
+function renderDashboard() {
+  const enrollments = DB.enrollments.filter(e => e.userId === currentUser.id);
+  const myCourses = enrollments.map(e => DB.courses.find(c => c.id === e.courseId)).filter(Boolean);
+
+  const courseCards = myCourses.length ? myCourses.map(c => `
+    <div class="card card-clickable" onclick="go('course',${c.id})">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px">
+        <div>
+          <span class="badge" style="margin-right:8px">${c.code}</span>
+          <span style="font-weight:700;font-size:16px">${c.name}</span>
+          <div style="color:var(--muted);font-size:13px;margin-top:4px">${c.duration} · ${c.level}</div>
+        </div>
+        <span class="badge badge-green">Enrolled ✓</span>
+      </div>
+    </div>
+  `).join("") : `
+    <div class="card empty">
+      <p style="margin-bottom:16px">You haven't enrolled in any courses yet.</p>
+      <button class="btn btn-primary" onclick="go('courses')">Browse Courses</button>
+    </div>
+  `;
+
+  return `
+    <div class="page">
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:32px">
+        <div style="width:56px;height:56px;background:var(--accent-soft);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:22px;color:var(--accent);font-weight:800;flex-shrink:0">
+          ${currentUser.name[0].toUpperCase()}
+        </div>
+        <div>
+          <h1 style="font-size:24px;font-weight:800;margin-bottom:4px">Welcome, ${currentUser.name.split(" ")[0]}</h1>
+          <div style="color:var(--muted);font-size:14px;display:flex;align-items:center;gap:8px">
+            ${currentUser.email}
+            <span class="badge ${currentUser.role === "admin" ? "badge-amber" : "badge-green"}">${currentUser.role}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-3" style="margin-bottom:32px">
+        <div class="card" style="text-align:center">
+          <div class="stat-val" style="color:var(--accent)">${myCourses.length}</div>
+          <div class="stat-label">Enrolled Courses</div>
+        </div>
+        <div class="card" style="text-align:center">
+          <div class="stat-val" style="color:var(--green)">${DB.courses.length}</div>
+          <div class="stat-label">Total Courses</div>
+        </div>
+        <div class="card" style="text-align:center">
+          <div class="stat-val" style="color:var(--amber)">${DB.modules.length}</div>
+          <div class="stat-label">Total Modules</div>
+        </div>
+      </div>
+
+      <h2 class="section-title" style="margin-top:0">My Enrolled Courses</h2>
+      <div class="stack">${courseCards}</div>
+    </div>
+  `;
+}
+
+// ─── PAGE: ADMIN ──────────────────────────────────────────────────────────────
+function renderAdmin() {
+  const userRows = DB.users.map(u => `
+    <tr>
+      <td style="color:var(--muted)">${u.id}</td>
+      <td style="font-weight:600">${u.name}</td>
+      <td style="color:var(--muted)">${u.email}</td>
+      <td><span class="badge ${u.role === "admin" ? "badge-amber" : "badge-green"}">${u.role}</span></td>
+      <td style="color:var(--accent)">${DB.enrollments.filter(e => e.userId === u.id).length}</td>
+    </tr>
+  `).join("");
+
+  const enrollRows = DB.enrollments.length ? DB.enrollments.map(e => {
+    const u = DB.users.find(x => x.id === e.userId);
+    const c = DB.courses.find(x => x.id === e.courseId);
+    return `
+      <tr>
+        <td style="font-weight:600">${u ? u.name : "?"}</td>
+        <td>${c ? c.name : "?"}</td>
+        <td style="color:var(--muted)">${new Date(e.enrolledAt).toLocaleString()}</td>
+      </tr>
+    `;
+  }).join("") : `<tr><td colspan="3" style="text-align:center;color:var(--muted);padding:24px">No enrollments yet.</td></tr>`;
+
+  return `
+    <div class="page">
+      <h1 class="page-title">Admin Dashboard</h1>
+      <p class="page-sub">System-wide overview</p>
+
+      <div class="grid-4" style="margin-bottom:32px">
+        <div class="card" style="text-align:center"><div class="stat-val" style="color:var(--accent)">${DB.users.length}</div><div class="stat-label">Users</div></div>
+        <div class="card" style="text-align:center"><div class="stat-val" style="color:var(--green)">${DB.courses.length}</div><div class="stat-label">Courses</div></div>
+        <div class="card" style="text-align:center"><div class="stat-val" style="color:var(--amber)">${DB.modules.length}</div><div class="stat-label">Modules</div></div>
+        <div class="card" style="text-align:center"><div class="stat-val" style="color:var(--red)">${DB.enrollments.length}</div><div class="stat-label">Enrollments</div></div>
+      </div>
+
+      <h2 class="section-title" style="margin-top:0">Registered Users</h2>
+      <div class="table-wrap" style="margin-bottom:28px">
+        <table class="data-table">
+          <thead><tr><th>ID</th><th>Name</th><th>Email</th><th>Role</th><th>Enrollments</th></tr></thead>
+          <tbody>${userRows}</tbody>
+        </table>
+      </div>
+
+      <h2 class="section-title" style="margin-top:0">All Enrollments</h2>
+      <div class="table-wrap">
+        <table class="data-table">
+          <thead><tr><th>Student</th><th>Course</th><th>Enrolled At</th></tr></thead>
+          <tbody>${enrollRows}</tbody>
+        </table>
+      </div>
+    </div>
+  `;
+}
+
+// ─── EVENT BINDING ─────────────────────────────────────────────────────────────
+function attachEvents() {
+  // Enter key support on login
+  if (currentPage === "login") {
+    ["login-email","login-pass"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); });
+    });
+  }
+  if (currentPage === "signup") {
+    ["su-name","su-email","su-pass","su-conf"].forEach(id => {
+      const el = document.getElementById(id);
+      if (el) el.addEventListener("keydown", e => { if (e.key === "Enter") doSignup(); });
+    });
+  }
+}
+
+// ─── BOOT ──────────────────────────────────────────────────────────────────────
+render();
+</script>
+</body>
+</html>
